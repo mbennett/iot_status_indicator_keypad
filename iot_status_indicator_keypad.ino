@@ -31,22 +31,26 @@ byte colPins[COLS] = {2, 5, 4}; //connect to the column pinouts of the keypad
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(115200);
+    while (!Serial);
+    pinMode(PIN_ONBOARD_LED, OUTPUT);
     connectToIO();
+    keypad.addEventListener(keypadEvent);
 }
-  
+
 void loop() {
     io.run();
     char key = keypad.getKey();
-  
+
     if (key) {
-        Serial.println(key);
-        handleKeyPress(key);
+        Serial.println("key is " + key);
+        //handleKeyPress(key);
     }
 }
 
 void connectToIO() {
     Serial.println("Connecting to Adafruit IO...");
+
     io.connect();
 
     // set a flag for toggling the LED
@@ -61,54 +65,67 @@ void connectToIO() {
     }
 
     // connected!
-    Serial.println();
+    Serial.println("Connected to Adafruit IO!");
     Serial.println(io.statusText());
 
     // keep the blue LED on
     digitalWrite(PIN_ONBOARD_LED, LOW);
 }
 
-void handleKeyPress(char key) {
-    Serial.println("handleKeyPress ");
-    int statusValue = 1;
-    switch (key) {
-        case '1':
-            statusValue = 1;
+void keypadEvent(KeypadEvent key) {
+
+    switch (keypad.getState()) {
+        case PRESSED:
+            {
+                int statusValue = 1;
+                switch (key) {
+                    case '1':
+                        statusValue = 1;
+                        break;
+                    case '2':
+                        statusValue = 2;
+                        break;
+                    case '3':
+                        statusValue = 3;
+                        break;
+                    case '4':
+                        statusValue = 4;
+                        break;
+                    case '5':
+                        statusValue = 5;
+                        break;
+                    case '6':
+                        statusValue = 6;
+                        break;
+                    case '7':
+                        statusValue = 7;
+                        break;
+                    case '8':
+                        statusValue = 99;
+                        break;
+                    case '9':
+                        statusValue = 97;
+                        break;
+                    case '*':
+                        statusValue = 98;
+                        break;
+                    case '0':
+                        statusValue = 96;
+                        break;
+                    case '#':
+                        // There are only 11 statuses so just make this one 96 as well.
+                        statusValue = 96;
+                        break;
+                    default:
+                        statusValue = 1;
+                        break;
+                }
+                status->save(statusValue);
+            }
             break;
-        case '2':
-            statusValue = 2;
+        case RELEASED:
             break;
-        case '3':
-            statusValue = 3;
-            break;
-        case '4':
-            statusValue = 4;
-            break;
-        case '5':
-            statusValue = 5;
-            break;
-        case '6':
-            statusValue = 6;
-            break;
-        case '7':
-            statusValue = 7;
-            break;
-        case '8':
-            statusValue = 99;
-            break;
-        case '9':
-            statusValue = 97;
-            break;
-        case '*':
-            statusValue = 98;
-            break;
-        case '0':
-            statusValue = 96;
-            break;
-        case '#':
-            // There are only 11 statuses so just make this one 96 as well.
-            statusValue = 96;
+        case HOLD:
             break;
     }
-    status->save(statusValue);
 }
