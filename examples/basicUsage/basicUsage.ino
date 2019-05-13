@@ -4,8 +4,6 @@
 /* set your WiFi and Adafruit IO information in this file */
 #include "config.h"
 
-#define PIN_ONBOARD_LED 2
-
 /* init Adafruit IO */
 AdafruitIO_WiFi io(IO_USERNAME, IO_KEY, WIFI_SSID, WIFI_PASS);
 
